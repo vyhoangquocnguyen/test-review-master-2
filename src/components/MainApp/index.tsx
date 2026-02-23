@@ -5,6 +5,22 @@ import UserSelect from '../UserSelect';
 import { connect } from 'react-redux';
 import styles from './MainApp.module.css';
 
+/**
+ * REViEW:
+ * 
+ * ISSUE 1: TYPE SAFETY: Local type definition for 'Todo'
+ *   Defining `Todo` here makes it unavailable to other components (like App or
+ *   UserSelect) unless they import it from this specific UI component. This
+ *   creates a circular dependency risk and makes the type harder to find.
+ *   FIX: Move common domain types to a centralized `src/types.ts` file.
+ * ISSUE 2 — CONNECT mapStateToProps IS EMPTY (line ~98)
+ *   `(state) => ({})` means MainApp gets no state from Redux via `connect()`.
+ *   The parent `App` component fetches `todos` from Redux and passes them as a prop. This is redundant.
+ *   [see App/index.tsx -> ISSUE 2]
+ *   FIX: Map state here: `(state) => ({ todos: state.list.todos })` and
+ *   remove the prop from App.
+ * 
+ */
 
 type Todo = {
     title: string,
