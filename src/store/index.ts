@@ -27,7 +27,27 @@ import { configureStore } from '@reduxjs/toolkit'
  *     export type RootState  = ReturnType<typeof store.getState>;
  *     export type AppDispatch = typeof store.dispatch;
  *     // Then in each file: const todos = useSelector((state: RootState) => state.list.todos);
-
+ * 
+ *  ISSUE 3 — The strings types for action types are hardcoded and duplicated across files:
+ *   'ADD_TODO', 'REMOVE_TODO', 'CHANGE_TODOS' are hardcoded strings in
+ *   MainApp/index.tsx, UserSelect/index.tsx, and here. A single typo silently
+ *   does nothing.
+ *   FIX: 
+ *   Either put them in the src/types.ts (preferbly) and import them, or Export an ACTION_TYPES constant here and import it everywhere:
+ *     export const ACTION_TYPES = {
+ *       ADD_TODO:    'ADD_TODO',
+ *       REMOVE_TODO: 'REMOVE_TODO',
+ *       CHANGE_TODOS:'CHANGE_TODOS',
+ *     } as const;
+ *  ISSUE 4: State mutation in ADD_TODO case (line~ 59)
+ *   `const newState = state` does NOT copy the object — it assigns a reference
+ *   to the same object. Calling `newState.todos.push(...)` therefore mutates
+ *   the original Redux state in place, which:
+ *     Breaks Redux's immutability guarantee
+ *     Prevents change-detection (state.todos === newState.todos → React/Redux won't see a new value and won't re-render)
+ *   FIX:
+ *     return { ...state, todos: [...state.todos, action.payload] };
+ * 
  */
 
 export default configureStore({
